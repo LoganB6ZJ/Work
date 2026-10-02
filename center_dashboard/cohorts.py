@@ -50,7 +50,10 @@ def main():
     ap.add_argument("--through", type=int, default=25, help="highest cohort number to generate (default 25)")
     args = ap.parse_args()
     conn = connect()
-    rows = load_cohorts(conn, args.through)
+    try:
+        rows = load_cohorts(conn, args.through)
+    finally:
+        conn.close()
     print(f"{'Cohort':>6}  {'Start':<10}  {'End':<10}  Tracked  Note")
     for n, start, end, tracked, note in rows:
         print(f"{n:>6}  {start:<10}  {end:<10}  {tracked:^7}  {note or ''}")

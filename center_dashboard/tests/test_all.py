@@ -32,7 +32,7 @@ SECRETS = ["Fake Person", "0012345", "9000002", "9000003", "example.com"]
 
 class Base(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         self.dir = Path(self.tmp.name)
         self.files = make_synthetic.build(self.dir / "src")
         self.db = self.dir / "t.db"

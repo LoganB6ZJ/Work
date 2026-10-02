@@ -190,6 +190,13 @@ def main():
         if d and not valid_iso_date(d):
             sys.exit("Dates must look like YYYY-MM-DD.")
     conn = connect()
+    try:
+        _run(args, conn)
+    finally:
+        conn.close()
+
+
+def _run(args, conn):
     org = load_org(conn, args.org, args.org_snapshot_date, args.force)
     print(f"Org chart: {org['status']}")
     if org["status"] == "header_mismatch":

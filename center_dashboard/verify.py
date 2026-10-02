@@ -48,7 +48,11 @@ def build(conn):
 
 
 def main():
-    text = build(connect())
+    conn = connect()
+    try:
+        text = build(conn)
+    finally:
+        conn.close()
     print(text)
     config.EXPORTS_DIR.mkdir(exist_ok=True)
     (config.EXPORTS_DIR / "verification_report.txt").write_text(text + "\n", encoding="utf-8")

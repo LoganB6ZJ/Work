@@ -183,6 +183,13 @@ def main():
     args = ap.parse_args()
     _check_gate()
     conn = connect()
+    try:
+        _run(args, conn)
+    finally:
+        conn.close()
+
+
+def _run(args, conn):
     allow = config.JOB_FAMILY_ALLOWLIST
     if args.from_manifest:
         from make_manifest import read_manifest
