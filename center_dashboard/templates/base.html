@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}Center Dashboard{% endblock %}</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; margin: 1.5rem; color: #1b1b1b; }
+  a { color: #0b4f9c; }
+  table { border-collapse: collapse; margin: .5rem 0 1.25rem; }
+  th, td { border: 1px solid #c8c8c8; padding: .3rem .6rem; text-align: left; font-size: .9rem; }
+  th { background: #f0f0f0; }
+  h1 { margin-bottom: .2rem; } h2 { margin-top: 1.6rem; }
+  .muted { color: #666; font-size: .85rem; }
+  .tag { padding: 0 .4rem; border-radius: 3px; font-size: .78rem; }
+  .from_other { background: #ffe3a3; } .new { background: #cfe8ff; } .returned { background: #e6d5ff; }
+  .role_change { background: #d6f5d6; } .left { background: #ffd0d0; }
+  .bar { display: inline-block; height: .8rem; background: #4a7fc1; vertical-align: middle; }
+  .inactive { color: #a00; }
+</style>
+</head>
+<body>
+<p><a href="/">All centers</a></p>
+{% block body %}{% endblock %}
+</body>
+</html>

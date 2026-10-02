@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Center {{ c.center_id }}{% endblock %}
+{% block body %}
+<h1>{{ c.center_id }} {{ c.name or '' }}</h1>
+<p class="muted">
+  {{ c.region or 'region unknown' }} | {{ c.city or '' }}{% if c.city and c.state %}, {% endif %}{{ c.state or '' }} {{ c.zip or '' }}
+  | type {{ c.center_type or '?' }} | build {{ c.build_type or '?' }} | opened {{ c.open_date or '?' }}
+  | paint partner {{ c.paint_partner or '?' }}
+  | {% if c.active == 0 %}<span class="inactive">inactive</span>{% elif c.active == 1 %}active{% else %}active flag unknown{% endif %}
+</p>
+
+<h2>Current staff{% if v.latest_date %} (snapshot {{ v.latest_date }}){% endif %}</h2>
+{% if v.current %}
+<table>
+<tr><th>Name</th><th>Role</th><th>Job code</th><th>Hire date</th><th>Position start</th><th>12 mo flag avg</th><th>5 wk flag avg</th><th>Clocked hrs</th></tr>
+{% for s in v.current %}
+<tr><td>{{ s.name or '' }}</td><td>{{ s.job_family }}</td><td>{{ s.job_code or '' }}</td><td>{{ s.hire_date or '' }}</td>
+<td>{{ s.position_start_date or '' }}</td><td>{{ s.flag_avg_12mo if s.flag_avg_12mo is not none else '' }}</td>
+<td>{{ s.flag_avg_5wk if s.flag_avg_5wk is not none else '' }}</td><td>{{ s.clocked_hours if s.clocked_hours is not none else '' }}</td></tr>
+{% endfor %}
+</table>
+{% else %}<p>No painters or helpers at this center in the latest snapshot.</p>{% endif %}
+
+<h2>Count over time</h2>
+{% if v.counts %}
+<table>
+<tr><th>Snapshot</th>{% for f in v.families %}<th>{{ f }}</th>{% endfor %}</tr>
+{% for row in v.counts %}
+<tr><td>{{ row.date }}</td>
+{% for f in v.families %}{% set n = row.by_family.get(f, 0) %}
+<td>{{ n }} <span class="bar" style="width: {{ n * 14 }}px"></span></td>{% endfor %}
+</tr>
+{% endfor %}
+</table>
+{% else %}<p>No snapshots loaded.</p>{% endif %}
+
+<h2>Timeline</h2>
+<p class="muted">Highlights: <span class="tag from_other">from another center</span>
+<span class="tag new">first appearance in data</span> <span class="tag returned">returned</span>
+<span class="tag role_change">role change</span> <span class="tag left">left</span>.
+A move inside a gap is only known as "between snapshot X and snapshot Y". "Position start in window" corroborates a move but does not prove one.</p>
+{% for e in v.timeline|reverse %}
+<h3>{{ e.date }}{% if e.gap_days %} <span class="muted">({{ e.gap_days }} days after the previous snapshot)</span>{% endif %}</h3>
+{% if e.staff %}
+<table>
+<tr><th>Name</th><th>Role</th><th>Change</th></tr>
+{% for s in e.staff %}
+<tr><td>{{ s.name or '' }}</td><td>{{ s.job_family }}</td>
+<td>{% if s.tag not in ('same', 'baseline') %}<span class="tag {{ s.tag }}">{{ s.tag.replace('_', ' ') }}</span> {{ s.detail }}{% if s.corroborated %} (position start in window){% endif %}{% endif %}</td></tr>
+{% endfor %}
+{% for l in e.left %}
+<tr><td>{{ l.name or '' }}</td><td>{{ l.job_family }}</td><td><span class="tag left">left</span> {{ l.destination }}</td></tr>
+{% endfor %}
+</table>
+{% else %}
+<p>Nobody at this center in this snapshot.</p>
+{% if e.left %}<table>{% for l in e.left %}<tr><td>{{ l.name or '' }}</td><td>{{ l.job_family }}</td><td><span class="tag left">left</span> {{ l.destination }}</td></tr>{% endfor %}</table>{% endif %}
+{% endif %}
+{% endfor %}
+{% endblock %}

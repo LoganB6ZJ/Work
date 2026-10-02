@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Centers</h1>
+<form method="get">
+  <input name="q" value="{{ q }}" placeholder="center ID, name or city" size="30" autofocus>
+  <button>Search</button>
+</form>
+<p class="muted">{{ rows|length }} shown of {{ total }} centers (max 300 per search).</p>
+<table>
+<tr><th>ID</th><th>Name</th><th>Region</th><th>City</th><th>State</th><th>Status</th></tr>
+{% for r in rows %}
+<tr>
+  <td><a href="/center/{{ r.center_id }}">{{ r.center_id }}</a></td>
+  <td>{{ r.name or '' }}</td><td>{{ r.region or '' }}</td><td>{{ r.city or '' }}</td><td>{{ r.state or '' }}</td>
+  <td>{% if r.active == 0 %}<span class="inactive">inactive</span>{% elif r.active == 1 %}active{% else %}unknown{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
