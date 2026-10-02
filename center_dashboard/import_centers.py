@@ -58,12 +58,18 @@ def _zip(value):
     return z
 
 
-def load_org(conn, path, snapshot_date, force=False):
+def load_org(conn, path, snapshot_date, force=False, sheet=0):
     path = Path(path)
     fhash = file_sha256(path)
     if not force and already_logged(conn, fhash, "org_chart", snapshot_date):
         return {"status": "already loaded"}
-    df = read_table(path)
+    if sheet != 0 and path.suffix.lower() != ".csv":
+        import pandas as pd
+        with pd.ExcelFile(path) as xf:
+            names = list(xf.sheet_names)
+        if sheet not in names:
+            return {"status": "sheet_not_found", "sheets": names}
+    df = read_table(path, sheet_name=sheet)
     mapping, missing = _map(df.columns, ORG_FIELDS)
     if missing:
         return {"status": "header_mismatch", "missing": missing}
@@ -181,6 +187,7 @@ def report(conn, org_ids, sel_ids):
 def main():
     ap = argparse.ArgumentParser(description="Load the centers master.")
     ap.add_argument("--org", required=True, help="leadership org chart (xlsx)")
+    ap.add_argument("--org-sheet", default=0, help="tab name holding the org chart (default: first tab)")
     ap.add_argument("--org-snapshot-date", required=True, help="YYYY-MM-DD the org chart represents")
     ap.add_argument("--selection", help="Center Selection Tool workbook (xlsx)")
     ap.add_argument("--selection-snapshot-date", help="optional YYYY-MM-DD for the Selection Tool")
@@ -197,8 +204,10 @@ def main():
 
 
 def _run(args, conn):
-    org = load_org(conn, args.org, args.org_snapshot_date, args.force)
+    org = load_org(conn, args.org, args.org_snapshot_date, args.force, args.org_sheet)
     print(f"Org chart: {org['status']}")
+    if org["status"] == "sheet_not_found":
+        sys.exit(f"No tab with that name. Tabs in the file: {', '.join(org['sheets'])}")
     if org["status"] == "header_mismatch":
         sys.exit(f"Org chart is missing expected columns: {', '.join(org['missing'])}")
     if org["status"] == "loaded":

@@ -120,6 +120,16 @@ class TestCenters(Base):
         self.assertEqual(org["ids"] - sel["ids"], {"5001"})
         self.assertEqual(sel["ids"] - org["ids"], {"9999"})
 
+    def test_combined_workbook_org_chart_tab(self):
+        c = self.files["combined"]
+        r = import_centers.load_org(self.conn, c, "2026-10-01", sheet="Org Chart")
+        self.assertEqual((r["status"], r["loaded"]), ("loaded", 5))
+        s = import_centers.load_selection(self.conn, c)
+        self.assertEqual((s["status"], s["updated"], s["stubs_added"]), ("loaded", 4, 1))
+        self.assertEqual(import_centers.load_org(self.conn, c, "2026-10-02", sheet="Nope")["status"], "sheet_not_found")
+        # default (first tab) is the Selection Tool, which is not an org chart
+        self.assertEqual(import_centers.load_org(self.conn, c, "2026-10-03")["status"], "header_mismatch")
+
     def test_rerun_is_noop(self):
         self.load_centers()
         before = self.conn.execute("SELECT COUNT(*) FROM import_log").fetchone()[0]

@@ -17,6 +17,7 @@ Run every command below from this folder (`center_dashboard`) in the VS Code ter
 ## First load (in this order)
 
 1. **Centers.** `py import_centers.py --org raw\centers\<org chart>.xlsx --org-snapshot-date YYYY-MM-DD --selection raw\centers\<selection tool>.xlsx`
+   If the org chart is a tab inside the Selection Tool workbook, pass the same file to both and add `--org-sheet "Org Chart"`.
    Check the counts, and the center IDs that appear in only one file.
 2. **Cohorts.** `py cohorts.py` prints the table. Compare it with what you know. Use `--through 40` to extend.
 3. **Profile the painter files.** `py profile_painters.py <folder of painter files>`

@@ -104,6 +104,22 @@ def build(folder):
     for key, rows in snaps.items():
         out[key] = folder / f"Tech Capacity {key}.xlsx"
         _write(out[key], PAINTER_HEADERS, rows)
+    # one workbook: Selection Tool tab plus the org chart on the last tab
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Center Selection Tool"
+    for i in range(2):
+        ws.append([f"Title row {i + 1}"])
+    ws.append(SEL_HEADERS)
+    for r in sel_rows:
+        ws.append(r)
+    wb.create_sheet("Notes").append(["not used"])
+    wo = wb.create_sheet("Org Chart")
+    wo.append(ORG_HEADERS)
+    for r in org_rows:
+        wo.append(r)
+    out["combined"] = folder / "combined.xlsx"
+    wb.save(out["combined"])
     # a file with a renamed header and one with an unexpected extra column
     bad_headers = [h if h != "Clocked Hours" else "Clocked Hrs" for h in PAINTER_HEADERS]
     out["bad_header"] = folder / "bad_header.xlsx"
